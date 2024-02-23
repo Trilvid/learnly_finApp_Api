@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsEmail, IsNumber, MinLength } from "class-validator";
-import { Role } from "../schemas/user.schema";
+import { IsNotEmpty, IsString, IsEnum, IsEmail, IsNumber, MinLength, MaxLength } from "class-validator";
 
 export class SignUpDto {
     @IsNotEmpty()
@@ -12,6 +11,7 @@ export class SignUpDto {
 
     @IsNotEmpty()
     @IsString()
+    @MaxLength(11)
     mobile: string;
 
     @IsNotEmpty()
@@ -19,24 +19,19 @@ export class SignUpDto {
     country: string;
 
     @IsNotEmpty()
+    @IsString()
+    @MinLength(4)
+    @MaxLength(6)
+    pin: number;
+
+    @IsNotEmpty()
     @IsNumber()
     age: number;
-
-    @IsNotEmpty()
-    @IsNumber()
-    account: number;
-
-    @IsNotEmpty()
-    @IsEnum(Role, {message: 'Please provide correct role'})
-    role: string;
 
     @IsNotEmpty()
     @IsString()
     @MinLength(8)
     password: string;
-}
 
-function IsUnique(): (target: SignUpDto, propertyKey: "email") => void {
-    throw new Error("Function not implemented.");
-}
 
+}
