@@ -2,22 +2,12 @@ import { MailerOptions } from '@nestjs-modules/mailer';
 
 export const mailerConfig: MailerOptions = {
     transport: {
-        // host: "smtp.resend.com",
-        host: "smtp-mail.outlook.com",
-        // port: 2587,
+        host: "smtp.resend.com",
         port: 587,
-        secure: true,
-        // tls: {
-        //     ciphers:'SSLv2'
-        // },
-        tls:{
-            rejectUnauthorized: false
-       },
+        secure: false,
         auth: {
-            // user: "resend",
-            user: "divinennanna.20201239483@futo.edu.ng",
-            // pass: process.env.RESEND_API_KEY
-            pass: "@Candbf1cd9"
+            user: process.env.MAILTRAP_USER,
+            pass: process.env.MAILTRAP_PASS
         }
     },
     defaults: {

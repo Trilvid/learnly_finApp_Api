@@ -36,7 +36,7 @@ export class Userx {
     password: string;
     
     @Prop({required: true, default: "user"})
-    roles: Role;
+    role: Role;
     
     @Prop({required: true})
     pin: string;
