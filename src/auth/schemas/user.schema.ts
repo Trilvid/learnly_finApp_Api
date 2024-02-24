@@ -35,8 +35,8 @@ export class Userx {
     @Prop({required: true})
     password: string;
     
-    @Prop({required: true, default: "User"})
-    roles: Role[];
+    @Prop({required: true, default: "user"})
+    roles: Role;
     
     @Prop({required: true})
     pin: string;
@@ -53,8 +53,8 @@ export class Userx {
     @Prop()
     resetPasswordExpires: Date;
 
-    // @Prop()
-    // passwordResetToken: string
+    @Prop({default: 0})
+    balance: number
 
     // @Prop()
     // passwordResetExpires: Date

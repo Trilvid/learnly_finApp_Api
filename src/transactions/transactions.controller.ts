@@ -6,13 +6,16 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('transactions')
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(
+    private readonly transactionsService: TransactionsService
+    ) {}
 
-  @Post()
+  @Post('/deposit')
+  @UseGuards(AuthGuard())
   create(
     @Body() createTransactionDto: CreateTransactionDto, 
     @Req() req: any) {
-    return this.transactionsService.create(createTransactionDto);
+    return this.transactionsService.deposit(createTransactionDto, req.user._id);
   }
 
   @Get()
