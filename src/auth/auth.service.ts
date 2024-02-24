@@ -1,7 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
+import { Userx } from './schemas/user.schema';
+import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/signup.dto';
@@ -10,19 +10,18 @@ import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import { createHash, randomBytes  } from 'crypto';
-import * as crypto from 'crypto'
 
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectModel(User.name)
-        private userModel: Model<User>,
+        @InjectModel(Userx.name)
+        private userModel: Model<Userx>,
         private jwtService: JwtService,
         private mailService: MailerService
     ) {}
 
-    async signUp(signUpDto: SignUpDto, reciever: string, subject: string, content: string): Promise<{ token: string }> {
+    async signUp(signUpDto: SignUpDto, reciever: string): Promise<{ token: string }> {
         const { name, email, password, pin, mobile, age, country } = signUpDto
 
         const hashedpassword = await bcrypt.hash(password, 10)
@@ -46,7 +45,24 @@ export class AuthService {
         if(existingEmail) {
             throw new UnauthorizedException('Sorry this email already exists')
         } else {
+
+        const user = await this.userModel.create({
+            name,
+            email,
+            password: hashedpassword,
+            pin,
+            account: 7+acctNo,
+            mobile,
+            country,
+            age
+        })
+        const userId = user._id
+        const token = this.jwtService.sign({id: user._id})
+        
             try{
+              const subject = "CONFIRM YOUR LEARNLY FIN APP";
+              const url= `${process.env.BASE_URL}auth/${userId}/verify/${token}`
+              const content = `Confirm your account \n Thank you for signing up for Learnly. To confirm your account, please follow the link below. \n ${url}`;
                 const sent = await this.mailService.sendMail({
                   to: reciever,
                   subject,
@@ -60,32 +76,9 @@ export class AuthService {
               } catch (error) {
                 console.error('Error sending email', error);
               }
-        try {
-
-        const user = await this.userModel.create({
-            name,
-            email,
-            password: hashedpassword,
-            pin,
-            account: 7+acctNo,
-            mobile,
-            country,
-            age
-        })
         
-        
-        const token = this.jwtService.sign({id: user._id})
 
         return { token }
-        } 
-        catch (error) {
-          if (error instanceof mongoose.Error.ValidationError) {
-            console.error('Validation error:', error.message);
-          } 
-          else {
-            console.error('Error occurred:', error);
-          }
-        }
     }
     }
     
@@ -94,6 +87,10 @@ export class AuthService {
     const { email, password } = loginDto
 
     const user = await this.userModel.findOne({email})
+
+    if(user.status === "pending") {
+      throw new BadRequestException('Please veryify your email to continue')
+    }
 
     if(!user) {
         throw new UnauthorizedException('Invalid email or password')
@@ -111,7 +108,7 @@ export class AuthService {
 }
 
 
-    async ForgotPassword(forgotPasswordDto: ForgotPasswordDto, to: string, subject: string, content: string): Promise<User> {
+    async ForgotPassword(forgotPasswordDto: ForgotPasswordDto, to: string, subject: string, content: string): Promise<Userx> {
       const { email } = forgotPasswordDto
       const mail = await this.userModel.findOne({email})
       if(!mail){
@@ -147,32 +144,24 @@ export class AuthService {
 
       const resetToken = randomBytes(64).toString('hex');
       const hash = createHash('sha256').update(resetToken).digest('hex');
-      // const expirationDate = new Date(Date.now() + 3600000);
-      const expirationDate =  Date.now() + 15 * 60 * 1000;
+      const expirationDate = new Date(Date.now() + 3600000);
 
       user.resetPasswordToken = hash;
       user.resetPasswordExpires = expirationDate;
-      // const time = Date.now() + 60 * 60 * 1000;
-      // console.log({resetToken, hash, expires: user.resetPasswordExpires, time})
+      console.log({hash,expirationDate})
 
       await user.save();
 
       return hash;  
     }
 
-    
-  hashToken(token: string): string {
-    return crypto.createHash('sha256').update(token).digest('hex');
-  }
-
-  async resetPassword(token: string, resetPasswordDto: ResetPasswordDto): Promise<User> {
+  async resetPassword(token: string, resetPasswordDto: ResetPasswordDto): Promise<Userx> {
     const { password, confirmPassword } = resetPasswordDto;
-    const hashedToken = this.hashToken(token);
+    const hashedToken = token;
+
     const user = await this.userModel.findOne({
-      where: {
-        passwordResetToken: hashedToken,
-        passwordResetExpires:  {$gt: Date.now() },
-      },
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
     });
 
     if (!user) {
@@ -180,14 +169,45 @@ export class AuthService {
     }
 
     if(password != confirmPassword) {
-      throw new UnauthorizedException('password does not match') 
+      throw new BadRequestException('password does not match') 
     }
+    
+    const hashedpassword = await bcrypt.hash(password, 10)
 
-    user.password = password;
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
+    user.password = hashedpassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
     await user.save();
 
     return ;
   } 
+
+async verifyEmail(_id: string): Promise<Userx> {
+  const user = await this.userModel.findById({_id});
+
+  if(!user) {
+    throw new NotFoundException('This User does not exists.')
+  }
+  else {
+    const token = this.jwtService.sign({id: user._id})
+
+    if(!token) {
+      throw new BadRequestException("please try again later")
+    }
+
+    await this.userModel.updateOne({_id: user.id},{
+      $set: {status: 'verified'}
+    })
+
+  }
+   
+  return 
+}
+
+
+
+
+
+
+
 }

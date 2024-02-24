@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 export enum Role {
-    SuperAdmin = 'SuperAdmin',
-    Admin = 'Admin',
-    User = 'User'
+    SuperAdmin = 'superAdmin',
+    Admin = 'admin',
+    User = 'user'
 }
 
 export enum Status {
@@ -16,10 +16,7 @@ export enum Status {
     timestamps: true
 })
 
-export class User {
-    static findOne(arg0: { where: { passwordResetToken: void; passwordResetExpires: boolean; }; }) {
-      throw new Error('Method not implemented.');
-    }
+export class Userx {
     @Prop({required: true})
     name: string;
 
@@ -39,7 +36,7 @@ export class User {
     password: string;
     
     @Prop({required: true, default: "User"})
-    role: Role;
+    roles: Role[];
     
     @Prop({required: true})
     pin: string;
@@ -54,16 +51,16 @@ export class User {
     resetPasswordToken: string;
 
     @Prop()
-    resetPasswordExpires: number;
+    resetPasswordExpires: Date;
 
-    @Prop()
-    passwordResetToken: string
+    // @Prop()
+    // passwordResetToken: string
 
-    @Prop()
-    passwordResetExpires: Date
-
+    // @Prop()
+    // passwordResetExpires: Date
+ 
     
 }
 
 
-export const UserSchema = SchemaFactory.createForClass(User)
+export const UserSchema = SchemaFactory.createForClass(Userx)
