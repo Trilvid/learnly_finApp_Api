@@ -22,7 +22,7 @@ export class UsersService {
       });
 
       if(sent) {
-        console.log("Email sent successfully")
+        console.log("Email sent successfully", sent)
       }
 
     } catch (error) {

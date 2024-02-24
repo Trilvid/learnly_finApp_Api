@@ -4,8 +4,6 @@ import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgotpassword.dto';
 import { ResetPasswordDto } from './dto/resetpassword.dto';
-import { Roles } from './roles.decorator';
-import { Role } from './schemas/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -41,7 +39,6 @@ export class AuthController {
     }
 
     @Get('/:id/verify/:token')
-    // @Roles(Role.Admin)
     async verifyEmail(@Param('id') id: string) {
         return this.authService.verifyEmail(id)
     }

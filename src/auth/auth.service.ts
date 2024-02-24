@@ -70,7 +70,7 @@ export class AuthService {
                 });
           
                 if(sent) {
-                  console.log("Email sent successfully")
+                  console.log("Email sent successfully", sent)
                 }
           
               } catch (error) {
@@ -124,7 +124,7 @@ export class AuthService {
           });
     
           if(sent) {
-            console.log("Email sent successfully")
+            console.log("Email sent successfully", sent)
             return 
           }
     

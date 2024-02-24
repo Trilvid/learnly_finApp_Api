@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } fro
 import { UsersService } from './users.service';
 import { Userx } from  "../auth/schemas/user.schema";
 import { AuthGuard } from '@nestjs/passport';
+import { AdminAuthGuard } from './admin.guard';
 
 @Controller('users')
 export class UsersController {
@@ -9,6 +10,7 @@ export class UsersController {
 
   @Get('/allusers')
   @UseGuards(AuthGuard())
+  @UseGuards(AdminAuthGuard) 
   async getAllUsers():Promise<Userx[]> {
     return this.usersService.findAll();
   }
