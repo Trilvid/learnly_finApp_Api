@@ -43,6 +43,20 @@ cd <project-folder-of-choice >
 npm install
 ```
 
+## Running the app
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+
 ## Step 3: Create a `.env` File
 
 Create a `.env` file in the root directory of the project. Add the following environment variables:
@@ -122,46 +136,6 @@ This Dockerfile sets up our container to run our NestJS application by installin
 
 Congratulations! You have successfully set up and run a NestJS application with MongoDB using Docker for containerization. Feel free to explore and modify the project as needed for your requirements.
 
-
-
-
-
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
 
 ## Support
 
