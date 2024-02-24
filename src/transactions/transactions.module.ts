@@ -4,7 +4,7 @@ import { TransactionsController } from './transactions.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TransactionSchema } from './schemas/transaction.schema';
 import { AuthModule } from './../auth/auth.module';
-import { UserSchema } from './../users/schemas/user.schema';
+import { UserSchema } from './../auth/schemas/user.schema';
 
 @Module({
   imports: [

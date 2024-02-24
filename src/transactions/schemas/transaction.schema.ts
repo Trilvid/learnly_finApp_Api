@@ -16,9 +16,6 @@ export class Transaction {
     @Prop({required: true})
     transType: TransactionType ;
     
-    @Prop({default: 0})
-    balance: number;
-    
     @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Userx', required: true})
     user: Userx;
 

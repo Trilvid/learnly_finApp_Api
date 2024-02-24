@@ -1,24 +1,17 @@
-import { IsEmpty, IsNumber, IsString } from "class-validator";
+import {  IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { Userx } from "../../auth/schemas/user.schema";
 
 export class CreateTransactionDto {
-    @IsEmpty()
+    @IsNotEmpty()
     @IsNumber()
     amount: number
 
-    @IsEmpty()
-    @IsString()
-    transType: string
-
-    @IsEmpty()
+    @IsNotEmpty()
     @IsString()
     description: string
 
-    @IsEmpty()
+    @IsNotEmpty()
     @IsString()
     pin: string
-
-    @IsEmpty({message: "You have to be logged in to use this route"})
-    readonly user: Userx
 }
 

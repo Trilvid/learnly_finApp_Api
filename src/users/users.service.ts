@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-// import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './schemas/user.schema';
+import { Userx } from  "../auth/schemas/user.schema"
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose'
 import { MailerService } from '@nestjs-modules/mailer';
@@ -9,28 +7,12 @@ import { MailerService } from '@nestjs-modules/mailer';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name)
-    private userModel: mongoose.Model<User>,
+    @InjectModel(Userx.name)
+    private userModel: mongoose.Model<Userx>,
     private readonly mailService: MailerService
   ) {}
 
-   async sendMail(reciever: string, subject: string, content: string) {
-
-    try{
-      await this.mailService.sendMail({
-        to: reciever,
-        subject,
-        html: content
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Error sending email', error);
-      return false; 
-    }
-  } 
-
-  async createUser(user: User,reciever: string, subject: string, content: string): Promise<User> {
+  async createUser(user: Userx,reciever: string, subject: string, content: string): Promise<Userx> {
     
     try{
       const sent = await this.mailService.sendMail({
@@ -50,13 +32,13 @@ export class UsersService {
     return res;
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<Userx[]> {
     const users = await this.userModel.find();
     return users;
   }
 
-  async findById(id: string): Promise<User> {
-    const res = await this.userModel.findById(id);
+  async findById(userId: string): Promise<Userx> {
+    const res = await this.userModel.findById(userId);
 
     if(!res) {
       throw new NotFoundException('This User does not exists.')
@@ -65,7 +47,7 @@ export class UsersService {
     return res;
   }
 
-  async updateById(id: string, user: User): Promise<User> {
+  async updateById(id: string, user: Userx): Promise<Userx> {
     return await this.userModel.findByIdAndUpdate(id, user, {
       new: true,
       runValidators: true

@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionType } from './schemas/transaction.schema';
 import { Model } from 'mongoose';
-import { Userx } from 'src/auth/schemas/user.schema';
+import { Userx } from './../auth/schemas/user.schema';
 
 @Injectable()
 export class TransactionsService {
   constructor(
-    @InjectModel(Userx.name) private readonly userModel: Model<Userx>,
+    @InjectModel(Userx.name) 
+    private userModel: Model<Userx>,
     @InjectModel(Transaction.name)
     private transactModel: Model<Transaction>
   ) {}
@@ -20,12 +20,12 @@ export class TransactionsService {
     const user = await this.userModel.findById(userId)
     if(!user) throw new UnauthorizedException('User not Found')
 
-    if(user.pin === pin) {
+    if(user.pin != pin) {
       throw new UnauthorizedException("Sorry invalid pin")
     }
 
     const depo = await this.transactModel.create({
-      user: user._id,
+      user:userId,
       amount,
       description,
       transType: TransactionType.Deposit
@@ -45,7 +45,7 @@ export class TransactionsService {
     const user = await this.userModel.findById(userId)
     if(!user) throw new UnauthorizedException('User not Found')
 
-    if(user.pin === pin) {
+    if(user.pin != pin) {
       throw new UnauthorizedException('Sorry invalid pin')
     }
     
@@ -69,19 +69,21 @@ export class TransactionsService {
 
   async transfer(
     reciever: number,
-     amount: number, 
-     description: string, 
-     userId: string,
-     pin: string
+    amount: number, 
+    description: string, 
+    userId: string,
+    pin: string
      ): Promise<Transaction[]> {
 
     const user = await this.userModel.findById(userId)
     if(!user) throw new UnauthorizedException('User not Found')
 
-    const toreciever = await this.userModel.findOne({reciever})
-    if(!toreciever) throw new UnauthorizedException('invalid account number')
+    const toreciever = await this.userModel.findOne({account: reciever})
+    if(!toreciever) {
+      throw new UnauthorizedException('invalid account number please check again')
+    }
 
-    if(user.pin === pin) {
+    if(user.pin != pin) {
       throw new UnauthorizedException('Sorry invalid pin')
     }
 
@@ -106,23 +108,26 @@ export class TransactionsService {
       await user.save();
       await toreciever.save();
 
-
     return [withdrawal, deposit];
   }
 
-  findAll() {
-    return `This action returns all transactions`;
+  async allTransactions(userId: string) {
+    const transaction = await this.transactModel.find().where({user: userId}).populate({
+      path: 'user',
+      select: 'name balance'
+    });
+    return transaction;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} transaction`;
+  // }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
-  }
+  // update(id: number, updateTransactionDto: UpdateTransactionDto) {
+  //   return `This action updates a #${id} transaction`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} transaction`;
+  // }
 }

@@ -1,4 +1,4 @@
-import { Role } from "../schemas/user.schema";
+import { Role } from  "./../../auth/schemas/user.schema"
 
 export class UpdateUserDto {
     readonly name: string;

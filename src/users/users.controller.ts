@@ -1,42 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './schemas/user.schema';
+import { Userx } from  "../auth/schemas/user.schema";
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async createUser(@Body() user: User) {
-    return this.usersService.createUser(user, user.email, "testing this email", "the Email and Rmail is working just fine");
-  }
-
-  @Get()
-  async getAllUsers():Promise<User[]> {
+  @Get('/allusers')
+  @UseGuards(AuthGuard())
+  async getAllUsers():Promise<Userx[]> {
     return this.usersService.findAll();
   }
   
-  @Get('/mail')
-  async sendEmail() {
-    const emailSent = await this.usersService.sendMail('martinsnwangele@gmail.com', 'Hello I am Testing this Email', 'contentect to the internet');
-
-    if(emailSent) {
-      return { message: 'email was sent successfully' }
-    }
-    else {
-     return { message: 'email was not sent '}
-    }
-  }
-
-  @Get(':id')
-  async getUser(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  @Get('/')
+  @UseGuards(AuthGuard())
+  getUser(
+    @Req() req: any
+  ) {
+    return this.usersService.findById(req.user._id);
   }
 
   @Patch(':id')
-  async updateUser(@Param('id') id: string, @Body() user: User) {
+  async updateUser(@Param('id') id: string, @Body() user: Userx) {
     return this.usersService.updateById(id, user);
   }
 

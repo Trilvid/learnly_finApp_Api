@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('transactions')
@@ -12,30 +11,35 @@ export class TransactionsController {
 
   @Post('/deposit')
   @UseGuards(AuthGuard())
-  create(
+  createDeposit(
     @Body() createTransactionDto: CreateTransactionDto, 
     @Req() req: any) {
     return this.transactionsService.deposit(createTransactionDto, req.user._id);
   }
 
-  @Get()
+  @Post('/withdrawal')
   @UseGuards(AuthGuard())
-  findAll() {
-    return this.transactionsService.findAll();
+  createWithdrawal(
+    @Body() createTransactionDto: CreateTransactionDto, 
+    @Req() req: any) {
+    return this.transactionsService.withdraw(createTransactionDto, req.user._id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transactionsService.findOne(+id);
+ 
+  @Post('/transfer')
+  @UseGuards(AuthGuard())
+  createTransfer(
+    @Body() body: any,
+    @Req() req: any) {
+      const {reciever, amount, description, pin } = body
+    return this.transactionsService.transfer(reciever, amount, description, req.user._id, pin);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto) {
-    return this.transactionsService.update(+id, updateTransactionDto);
+
+  @Get('/histroy')
+  @UseGuards(AuthGuard())
+  findAll(@Req() req:any, userId: string) {
+    return this.transactionsService.allTransactions(req.user._id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transactionsService.remove(+id);
-  }
 }

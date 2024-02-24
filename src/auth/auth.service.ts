@@ -208,6 +208,4 @@ async verifyEmail(_id: string): Promise<Userx> {
 
 
 
-
-
 }
